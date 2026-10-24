@@ -59,6 +59,12 @@ var _baked := ImageTexture.new()
 var _viewport: SubViewport
 var _cells: ColorRect
 var _material := ShaderMaterial.new()
+## The moving lights last sent to the shader (_process()); -1: none sent yet.
+var _sent_at := PackedVector4Array()
+var _sent_tints := PackedColorArray()
+var _sent_count := -1
+## _moving_lights()'s answer, one array reused.
+var _moving: Array[LightSource] = []
 
 
 func _ready() -> void:
@@ -86,6 +92,7 @@ func _ready() -> void:
 ## lamps).
 func setup(map: DungeonMap, lighting: LightingDef, tint: Color = Color.WHITE) -> void:
 	_map = map
+	_sent_count = -1  # (a new floor: the moving lights told again)
 	_cell_size = float(map.tile_size) / CELLS
 	_size = Vector2i(map.width, map.height) * CELLS
 	var brightness := maxf(maxf(tint.r, tint.g), maxf(tint.b, 0.001))
@@ -132,11 +139,24 @@ func refresh_walls() -> void:
 ## What each cell is for the light (open, cliff face, solid), from the map.
 func _read_walls() -> void:
 	_walls.resize(_size.x * _size.y)
-	for y in _size.y:
-		for x in _size.x:
-			var tile := Vector2i(int(x / float(CELLS)), int(y / float(CELLS)))
-			_walls[y * _size.x + x] = OPEN if _map.is_floor(tile) else (FACE if _is_face(_map, tile) else SOLID)
-	_material.set_shader_parameter("walls", ImageTexture.create_from_image(Image.create_from_data(_size.x, _size.y, false, Image.FORMAT_R8, _scaled(_walls, 127))))
+	var shown := PackedByteArray()  # (the shader's copy, x127: filled in the same pass)
+	shown.resize(_walls.size())
+	# Each tile looked at once, its CELLS x CELLS cells filled with it.
+	for ty in ceili(_size.y / float(CELLS)):
+		for tx in ceili(_size.x / float(CELLS)):
+			var tile := Vector2i(tx, ty)
+			var kind := OPEN if _map.is_floor(tile) else (FACE if _is_face(_map, tile) else SOLID)
+			for dy in CELLS:
+				var y := ty * CELLS + dy
+				if y >= _size.y:
+					break
+				for dx in CELLS:
+					var x := tx * CELLS + dx
+					if x >= _size.x:
+						break
+					_walls[y * _size.x + x] = kind
+					shown[y * _size.x + x] = kind * 127
+	_material.set_shader_parameter("walls", ImageTexture.create_from_image(Image.create_from_data(_size.x, _size.y, false, Image.FORMAT_R8, shown)))
 
 
 ## The light level at a point of the floor (what the shader shows there).
@@ -175,6 +195,18 @@ func _process(_delta: float) -> void:
 		_bake()
 	var centre := get_viewport().get_camera_2d().get_screen_center_position() if get_viewport().get_camera_2d() else Vector2.ZERO
 	var moving := _moving_lights(centre)
+	# The shader is told only when a light stepped into another cell, dimmed or tinted: most
+	# frames none did (whole cells), and nothing is built or sent.
+	var same := moving.size() == _sent_count
+	for i in moving.size():
+		if not same:
+			break
+		var source := moving[i]
+		var cell := _cell_of(source.global_position)
+		same = _sent_at[i] == Vector4(cell.x + 0.5, cell.y + 0.5, source.level_over(ambient_level), 0.0) \
+			and _sent_tints[i] == _normalized(source.color)
+	if same:
+		return
 	var at := PackedVector4Array()
 	var tints := PackedColorArray()
 	at.resize(MAX_MOVING)
@@ -184,6 +216,9 @@ func _process(_delta: float) -> void:
 		var cell := _cell_of(source.global_position)
 		at[i] = Vector4(cell.x + 0.5, cell.y + 0.5, source.level_over(ambient_level), 0.0)
 		tints[i] = _normalized(source.color)
+	_sent_at = at
+	_sent_tints = tints
+	_sent_count = moving.size()
 	_material.set_shader_parameter("lights", at)
 	_material.set_shader_parameter("light_colors", tints)
 	_material.set_shader_parameter("light_count", moving.size())
@@ -302,12 +337,13 @@ func _spread(buckets: Array[Array]) -> void:
 
 # --- Moving lights --------------------------------------------------------------------
 
-## The lit moving lights, nearest to `centre` first, at most MAX_MOVING.
+## The lit moving lights, nearest to `centre` first, at most MAX_MOVING (one array, reused:
+## read it before the next call).
 func _moving_lights(centre: Vector2) -> Array[LightSource]:
-	var result: Array[LightSource] = []
-	for node in get_tree().get_nodes_in_group(LightSource.GROUP):
-		var source := node as LightSource
-		if source and source.moves and source.is_lit():
+	var result := _moving
+	result.clear()
+	for source in LightSource.in_tree:
+		if source.moves and source.is_lit():
 			result.append(source)
 	if result.size() > MAX_MOVING:
 		result.sort_custom(func(a: LightSource, b: LightSource) -> bool:

@@ -11,6 +11,7 @@ var _body: StaticBody2D
 var _texture: Texture2D
 ## 0 = spikes down, 1 = spikes up.
 var _amount := 0.0
+var _drawn_amount := 0.0
 
 
 func setup(world: World, room: Rect2i) -> void:
@@ -80,7 +81,8 @@ func _find_exits(room: Rect2i) -> Array[Vector2i]:
 
 
 func _process(_delta: float) -> void:
-	if _amount > 0.0:
+	if _amount != _drawn_amount:  # (rising or sinking; standing, nothing to draw again)
+		_drawn_amount = _amount
 		queue_redraw()
 
 

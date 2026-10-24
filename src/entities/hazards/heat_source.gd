@@ -22,6 +22,8 @@ var _ripples: Array[Vector3] = []
 var _ground_blobs: Array[Vector3] = []
 ## A campfire's flames, on a node of their own: tongues licking up through them (flame.gdshader).
 var _flames: Node2D
+## The flame frames last drawn (_flame_key()).
+var _drawn_flames := -1
 
 
 func setup(source_def: HeatSourceDef, floor_world: World, cells: Rect2i) -> void:
@@ -85,10 +87,15 @@ func reaches(actor: Actor) -> bool:
 
 func _process(delta: float) -> void:
 	_time += delta
-	if def.ground_shader == null:
+	# (Off screen nothing needs drawing; drawn again the frame it comes back into view.)
+	var seen := Vfx.on_screen(self, area.size.length() * 0.5 + def.reach)
+	if def.ground_shader == null and seen and _animates():
 		queue_redraw()  # the shader animates by itself
-	if _flames:
-		_flames.queue_redraw()
+	if _flames and seen:
+		var key := _flame_key()
+		if key != _drawn_flames:
+			_drawn_flames = key
+			_flames.queue_redraw()
 	if def.sound:
 		_sound_timer -= delta
 		if _sound_timer <= 0.0:
@@ -141,6 +148,25 @@ func _add_flames() -> void:
 	var heat := DistortionStamp.attach(_flames, DistortionStamp.Kind.HEAT, 6.0 + 5.0 * def.flame_copies, 1.0, 0.0, PixelDraw.snap(core))
 	if heat:
 		heat.height = height * 2.0 + 16.0
+
+
+## Whether _draw() changes with the time: a campfire's breathing glow, a pond's ripples, hot
+## ground (drawn once otherwise).
+func _animates() -> bool:
+	if def.comfort:
+		return true
+	if def.pond:
+		return not _ripples.is_empty()
+	return true
+
+
+## The flames' frames now, as one number (_draw_flames()): redrawn only when one turns.
+func _flame_key() -> int:
+	var frames := VfxSheetDef.columns(def.flames, def.flame_frames)
+	var key := 0
+	for i in def.flame_copies:
+		key = key * frames + int(_time * 9.0 + i * 1.7) % frames
+	return key
 
 
 func _draw_flames() -> void:

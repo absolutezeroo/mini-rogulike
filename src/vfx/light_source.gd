@@ -9,6 +9,9 @@ const GROUP := &"light_sources"
 
 ## Bumped whenever a light that stays put appears, goes out or changes: the field redoes them.
 static var revision := 0
+## Every light in the tree, in the order they came in (the group's): the field walks it for the
+## moving ones every frame without asking the tree for the group (docs/performance.md).
+static var in_tree: Array[LightSource] = []
 
 @export var color: Color = Color(1, 0.85, 0.6):
 	set(value):
@@ -30,10 +33,12 @@ var _counted := false
 
 func _enter_tree() -> void:
 	add_to_group(GROUP)
+	in_tree.append(self)
 	_changed()
 
 
 func _exit_tree() -> void:
+	in_tree.erase(self)
 	_changed(true)
 
 

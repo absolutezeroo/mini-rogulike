@@ -55,11 +55,16 @@ static func wall_distance(map: DungeonMap) -> Dictionary:
 				steps[i] = 1
 				queue.append(i)
 	var head := 0
+	var around := PackedInt32Array([0, 0, 0, 0])  # (one buffer: no array built per cell)
 	while head < queue.size():
 		var i := queue[head]
 		head += 1
 		var x := i % w
-		for next in [i - 1 if x > 0 else -1, i + 1 if x < w - 1 else -1, i - w, i + w]:
+		around[0] = i - 1 if x > 0 else -1
+		around[1] = i + 1 if x < w - 1 else -1
+		around[2] = i - w
+		around[3] = i + w
+		for next in around:
 			if next >= 0 and next < w * h and tiles[next] == floor_tile and steps[next] == 0:
 				steps[next] = steps[i] + 1
 				queue.append(next)
@@ -110,7 +115,7 @@ static func _lay_ground(world: World, layer: GroundLayerDef, walls: Dictionary) 
 		var smoothed := {}
 		for cell: Vector2i in floor_cells:
 			var around := 0
-			for dir: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
+			for dir: Vector2i in GridDirs.FOUR:
 				if cells.has(cell + dir):
 					around += 1
 			if (cells.has(cell) and around >= 2) or around >= 3:

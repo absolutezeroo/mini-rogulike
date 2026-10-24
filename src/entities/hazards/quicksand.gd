@@ -8,6 +8,7 @@ var world: World
 var radius := 30.0
 
 var _anim_time := 0.0
+var _drawn_frame := -1
 ## Actor instance id -> seconds spent in the pool.
 var _time_in := {}
 var _next_tick := {}
@@ -30,8 +31,13 @@ func contains(actor: Actor) -> bool:
 
 func _physics_process(delta: float) -> void:
 	_anim_time += delta
-	queue_redraw()
-	for actor in world.get_actors():
+	var frame := _sheet_frame()
+	if frame != _drawn_frame and Vfx.on_screen(self, radius):
+		_drawn_frame = frame
+		queue_redraw()
+	for actor in world.actors_this_frame():
+		if not is_instance_valid(actor):
+			continue
 		var id := actor.get_instance_id()
 		if not actor.is_grounded() or not contains(actor):
 			_time_in.erase(id)
@@ -53,12 +59,19 @@ func _physics_process(delta: float) -> void:
 		_next_tick[id] = tick
 
 
+## The sheet's frame shown now (0 without a sheet): drawn again only when it changes.
+func _sheet_frame() -> int:
+	if def.sheet == null:
+		return 0
+	var frame_size := def.sheet.get_height()
+	return int(_anim_time * def.fps) % maxi(int(def.sheet.get_width() / float(frame_size)), 1)
+
+
 func _draw() -> void:
 	if def.sheet == null:
 		PixelDraw.disc(self, Vector2.ZERO, radius, Color("c8a165"))
 		return
 	var frame_size := def.sheet.get_height()
-	var frames := maxi(int(def.sheet.get_width() / float(frame_size)), 1)
-	var frame := int(_anim_time * def.fps) % frames
+	var frame := _sheet_frame()
 	var size := Vector2.ONE * frame_size * 2.0
 	draw_texture_rect_region(def.sheet, Rect2(-size * 0.5, size), Rect2(frame * frame_size, 0, frame_size, frame_size), def.icon_tint)

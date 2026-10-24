@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 218,
+  "next_id": 222,
   "tags": [
     "pc",
     "test",
@@ -2899,7 +2899,7 @@
     {
       "id": "task_195",
       "title": "Audit du cœur : points restants (dictionnaires-structs, get() par nom, perfs)",
-      "description": "Reste de core.md (24/10) : M7 trait_state / StatusSet._slows / Belt.slots / _walk_checks en classes typées ; M8 Passive.look_element et PerkSet (get(\"passives\"), get(\"id\")) par nom ; L2 Combat.spec_from_weapon et melee_strike testent `attacker is Player`, StatusSet source &\"hit\" ; L3 Monster._noticed écrit Profile.mark_seen ; L4 Player appelle Monster.on_hit_player ; PerkSet garde ses 4 sauvegardes de heal_source à la main (boucle chaude, sans lambda) ; perk_offer_requested porte des textes d'interface depuis une Def ; src/vfx/telegraph_view.gd et src/ui/codex/attack_preview.gd testent encore le type d'Effect (passer par Effect.telegraph_kind()) ; perfs P1-P6 (allocations par image, queue_redraw sans changement, espacement O(n²), rayon de vue chaque image, get_image() GPU) ; encounter_outcome colle des propositions traduites ; weak_point_trait mesure le temps en Time.get_ticks_msec().",
+      "description": "Reste de core.md (24/10) : M7 trait_state / StatusSet._slows / Belt.slots / _walk_checks en classes typées ; M8 Passive.look_element et PerkSet (get(\"passives\"), get(\"id\")) par nom ; L2 Combat.spec_from_weapon et melee_strike testent `attacker is Player`, StatusSet source &\"hit\" ; L3 Monster._noticed écrit Profile.mark_seen ; L4 Player appelle Monster.on_hit_player ; PerkSet garde ses 4 sauvegardes de heal_source à la main (boucle chaude, sans lambda) ; perk_offer_requested porte des textes d'interface depuis une Def ; src/vfx/telegraph_view.gd et src/ui/codex/attack_preview.gd testent encore le type d'Effect (passer par Effect.telegraph_kind()) ; (perfs P1-P6 faites : task_203 ; reste StatusSet.tick, voir task_219) ; encounter_outcome colle des propositions traduites ; weak_point_trait mesure le temps en Time.get_ticks_msec().",
       "status": "backlog",
       "priority": "low",
       "epic_id": "epic_5",
@@ -2909,7 +2909,7 @@
         "perf"
       ],
       "created_at": 1792817035,
-      "updated_at": 1792817035
+      "updated_at": 1792823411
     },
     {
       "id": "task_196",
@@ -3020,19 +3020,20 @@
     },
     {
       "id": "task_203",
-      "title": "Audit UI : performances de l'interface et des VFX sur téléphone",
-      "description": "Points perf de l'audit src/ui+vfx laissés pour plus tard : flèche des Profondeurs (961 cellules x 5 tests par image : masques précalculés), ItemSlot._process sur les panneaux cachés (set_process selon sélection / reflet), SplatLayer redessinée entière tant qu'un éclat vole (éclats sur un nœud à part), HUD qui interroge tout à chaque image (ceinture, arme, température, pact_line add_theme_color_override), allocations dans _draw (SoulNodeButton, PixelDraw.bit, StatusFx), queue_redraw inutiles (SwingVfx, BlastVfx, fond du titre à 60 fps), TouchScroll._process sur toutes les listes.",
-      "status": "todo",
+      "title": "Audit : performances (jeu, monde, interface, VFX) et sonde de mesure",
+      "description": "Fait (docs/performance.md, sonde tools/perf/perf_probe.tscn) : plus d'allocations par image dans les chemins chauds (angles, couches d'armure, noms d'animation, clé de BodyLook, noms d'actions, requêtes physiques gardées, registres Interactable/LightSource), queue_redraw seulement au changement (ombre des acteurs, pièges, sables, sources de chaleur et flammes, objets et or hors écran, tirs hors écran, porte du pacte, grilles des salles), espacement des monstres par grille (MonsterBuckets, même résultat), ligne de vue recalculée toutes les 0,1 s ou 4 px, plus de get_image() GPU en combat (feuilles lues une fois au chargement), fissures et sables sur actors_this_frame, sources de chaleur filtrées seulement si l'une a disparu, LightField : uniformes envoyés au changement et murs lus par tuile, plafond trié seulement s'il déborde, flèche des Profondeurs redessinée au changement (masque en cache), ItemSlot arrêté quand caché, SplatLayer : éclats en vol sur un nœud à part, HUD (ceinture, arme, température) et pact_line au changement. Mesures (CPU du fil principal, VM, 2 essais) : génération 300/300 ms -> 275/256 ms par étage (p95 459/477 -> 451/385) ; combat de 40 monstres 4,05/4,22 ms -> 3,95/4,14 ms par image (p95 7,2/7,9 -> 7,7/8,0 : dans le bruit). Mêmes étages (empreintes identiques) ; sans le cache de vue, le combat est identique au point de vie près. À vérifier : sur le S23 (task_98), l'effet réel sur le rendu (les redessins économisés ne se mesurent pas sans écran) et que les monstres ne semblent pas voir en retard.",
+      "status": "review",
       "priority": "medium",
       "epic_id": "epic_5",
       "due_date": null,
       "tags": [
         "perf",
         "ui",
-        "vfx"
+        "vfx",
+        "qualité"
       ],
       "created_at": 1792818511,
-      "updated_at": 1792818511
+      "updated_at": 1792823411
     },
     {
       "id": "task_204",
@@ -3245,6 +3246,68 @@
       ],
       "created_at": 1792821527,
       "updated_at": 1792821527
+    },
+    {
+      "id": "task_218",
+      "title": "Perfs restantes de l'interface et des VFX",
+      "description": "Laissé par task_203 : SoulNodeButton crée une StyleBoxTexture par _draw et appelle Profile.can_buy_node par image ; PixelDraw.bit et `for side in [-1, 1]` construisent des tableaux par particule ; StatusFx active_ids() + _bits.duplicate() par image ; SwingVfx et BlastVfx font queue_redraw chaque image (le rectangle ne change pas) ; fond du titre redessiné à 60 fps (passer à 12 fps ou séparer la grotte fixe du faisceau) ; TouchScroll._process et DialogueBox.MoreArrow tournent même cachés ; ActionBar recopie les boutons tactiles chaque image ; ItemSlot garde une StyleBox par alpha du pouls ; ComposedVfx, WeaponAura et SplatLayer gardent leurs particules en Dictionary (le Bit typé de StatusFx est le modèle).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "perf",
+        "ui",
+        "vfx"
+      ],
+      "created_at": 1792823411,
+      "updated_at": 1792823411
+    },
+    {
+      "id": "task_219",
+      "title": "Perfs restantes du jeu (combat, IA, tutoriel)",
+      "description": "Laissé par task_203 : StatusSet.tick fait _slows.keys() et _dots.duplicate() chaque image pendant un statut (l'ordre des dégâts doit rester le même) ; Combat.damage_blow_segment lance un rayon par cible et par accessoire ; World.get_hostiles() alloue à chaque attaque (un hostiles_this_frame() comme actors_this_frame()) ; Tutorial._check_world lance des rayons 4 fois par seconde même quand tous les conseils sont vus ; Monster._walk_checks garde des tableaux [image, résultat] ; WyrmBody redessine chaque image (un seul boss) ; FloorDresser.wall_distance rend un Dictionary par cellule (rendre le PackedInt32Array).",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "perf",
+        "qualité",
+        "combat"
+      ],
+      "created_at": 1792823411,
+      "updated_at": 1792823411
+    },
+    {
+      "id": "task_220",
+      "title": "Génération des étages : réduire les points chauds mesurés",
+      "description": "Profil de la sonde (tools/perf, docs/performance.md) : par étage, ~65 ms dans FloorDresser (les sols : _lay_ground, dictionnaires par cellule), ~50 ms dans CeilingLayer._make_chunks (émetteurs de poussière instanciés par pièce), ~45 ms dans LightField.setup (murs lus, réduit par task_203 ; reste la cuisson), ~40 ms la génération de la carte, ~25 ms WallBuilder. Les empreintes des étages (sonde, FloorDeterminismTests) doivent rester les mêmes.",
+      "status": "backlog",
+      "priority": "medium",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "perf",
+        "niveaux"
+      ],
+      "created_at": 1792823411,
+      "updated_at": 1792823411
+    },
+    {
+      "id": "task_221",
+      "title": "Test instable : « invisible: a monster in sight never notices the hero »",
+      "description": "Échoue parfois dans la suite game, aussi sur main sans les changements de task_203 (avec « invisible: sent after him or struck, it forgets him ») : à comprendre (un autre monstre ? la vie du héros touchée par autre chose ?).",
+      "status": "backlog",
+      "priority": "medium",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "bug",
+        "tests"
+      ],
+      "created_at": 1792823411,
+      "updated_at": 1792823411
     }
   ]
 }

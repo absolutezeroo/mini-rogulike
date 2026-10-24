@@ -28,7 +28,7 @@ static func _groups(world: World, room: Rect2i, blocked: Dictionary) -> int:
 			var queue: Array[Vector2i] = [start]
 			while not queue.is_empty():
 				var cell: Vector2i = queue.pop_back()
-				for dir: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
+				for dir: Vector2i in GridDirs.FOUR:
 					var next := cell + dir
 					if not seen.has(next) and _open(world, bounds, blocked, next):
 						seen[next] = true

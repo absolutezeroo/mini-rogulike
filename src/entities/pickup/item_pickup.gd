@@ -43,7 +43,8 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_time += delta
-	queue_redraw()
+	if Vfx.on_screen(self, 24.0):
+		queue_redraw()  # (its bob and glint move every frame: off screen, nothing to draw)
 
 
 func _on_body_entered(body: Node2D) -> void:

@@ -1,0 +1,109 @@
+# Performance
+
+The game must hold 60 frames a second on a phone (the target is a Samsung S23 Ultra, on the
+Compatibility renderer) in a crowded fight, and lay a floor without a long freeze. GDScript is
+slow next to the engine: what costs is script work repeated every frame for every body, every
+pickup and every slot. These rules keep it down; the probe below measures it.
+
+## The rules
+
+**No allocation in a hot path.** Code that runs every frame for every actor (or every slot,
+pickup, light...) builds no array, dictionary, string or physics object:
+
+- A literal array in a loop (`for dir in [Vector2i.LEFT, ...]`, `for angle in [0.0, 0.6]`) is a
+  new array each time: use a `const` (`GridDirs.FOUR`, `Monster.HOLE_TURNS`).
+- An array or dictionary built only to compare it with the last one (`[enabled, outline] ==
+  _key`) allocates: keep the fields and compare them one by one (`BodyLook._told_*`).
+- Names made at run time (`"skill_%d" % i`, `StringName(base + "_" + direction)`) intern a
+  string every frame: `const` arrays of `StringName` (`Player.SKILL_ACTIONS`), or a cache made
+  once (`ActorRig._directed`).
+- Physics queries keep their `PhysicsShapeQueryParameters2D` and shape and change only the
+  transform and radius (`WorldSpace.body_fits`, `Monster._walk_is_clear`).
+- A group scan (`get_tree().get_nodes_in_group()`) builds an array: things asked about every
+  frame keep a registry (`Interactable.in_tree`, `LightSource.in_tree`), and the World hands out
+  its lists once per frame (`actors_this_frame()`, one per physics step and one per drawn frame).
+- A list filtered "in case one was freed" is filtered only when one was (`World._is_gone`).
+- A buffer filled every frame is a member, reused (`LightField._moving`, `MonsterBuckets._found`);
+  say so in its doc ("read it before the next call").
+
+**Redraw on change.** `queue_redraw()` re-records every draw command of the node in GDScript.
+Call it only when what `_draw()` shows changed:
+
+- Keep a key of what the last `_draw()` showed (a frame index, a phase, a shake bit) and redraw
+  when it differs: `Trap._draw_key()`, `Quicksand._sheet_frame()`, `HeatSource._flame_key()`,
+  `RoomGates._drawn_amount`, `AbyssHud.Arrow.refresh()`. `LootShine` steps at 12 fps the same way.
+- What moves continuously (a bob, a breathing glow, a trail) redraws only on screen:
+  `Vfx.on_screen(node, reach)` (`reach`: how far its drawing goes from its origin). It is drawn
+  again the frame it comes back into view. `MonsterOverlay` gates on `World.view_rect()`.
+- Something drawn in the node's own space (an actor's shadow) moves with the node: no redraw
+  (`Actor._redraw_if_changed()`).
+- A big static layer and a few moving things go on two nodes: the moving ones redraw every frame,
+  the layer only when something lands or is added (`SplatLayer` and its `Air` child).
+- Shader uniforms are set when their value changes (`LightField` moving lights, the pact's rune).
+- A control on a panel that is hidden but kept stops processing (`ItemSlot`:
+  `NOTIFICATION_VISIBILITY_CHANGED`); a HUD widget sets its parts only when the state they show
+  changed (`Hud` belt, weapon and temperature; `PactLine` colour).
+
+**Quadratic loops get a grid.** Every monster looking at every other one (`_keep_spacing`) asks
+`World.activity.buckets` (`MonsterBuckets`) for those in the cells around it: the same ones, in the
+same order, so the same sums and the same seeded fights. A line of sight asked every frame is
+cast again only after 0.1 s or 4 px of movement (`Monster.can_see`).
+
+**No GPU readback during play.** `Texture2D.get_image()` reads the texture back from the GPU on
+the Compatibility renderer, a stall on a phone. What needs pixels reads each sheet once while the
+floor loads and measures its frames on that copy (`ActorRig.warm_tops`, `_sheets`).
+
+**Same results.** A shortcut must give the answer the plain way gave: the same floors from the
+same seed (the probe prints a digest per floor) and the same fights. `tests/suites/perf_tests.gd`
+checks the shortcuts against the plain ways (the spacing grid, the ring scan of
+`nearest_free_point`, the body tops, the action names).
+
+## The probe
+
+`tools/perf/perf_probe.tscn` plays the real game headless with fixed seeds:
+
+```
+godot --headless --fixed-fps 60 res://tools/perf/perf_probe.tscn [-- --fight-frames=1200 --floors=4]
+```
+
+1. **Floor generation**: `--floors` seeds x 8 depths (1-4, 6-9; the boss floors included),
+   `World.build_floor` timed. Each floor prints `digest N`: a change meant only to be faster must
+   print the same digests (`--dump-depth=D` prints what a depth's digest is made of).
+2. **A heavy fight**: on a fixed floor, a bot (the tests' `_bot_play`) fights a pack kept at 40
+   monsters of 8 kinds (melee, ranged, casters, fliers) around it, its Health refilled, for
+   `--fight-frames` physics frames. Each frame's physics part (from the physics step's start to
+   the process step's) and process part (the scripts' `_process` and every `_draw`) are kept:
+   average, 95th percentile and the worst frame.
+
+On Linux it measures the main thread's CPU time (`/proc/thread-self/schedstat`), so other
+programs on the machine count little; elsewhere the wall clock. The numbers depend on the
+machine: compare runs made on the same one, a few of each. Headless, nothing is rendered: the
+draw calls and the GPU are not measured (the debug panel's stats on the phone are, task_98).
+
+### Measured (October 2026, task_203)
+
+On the development VM (2 CPUs shared with other jobs, Godot 4.7 headless, the main thread's CPU
+time), two runs of each, before (main) and after:
+
+| | before | after |
+|---|---|---|
+| Floor generation, average | 300 / 300 ms | 275 / 256 ms |
+| Floor generation, 95th percentile | 459 / 477 ms | 451 / 385 ms |
+| Fight, frame average (physics + process) | 4.05 / 4.22 ms | 3.95 / 4.14 ms |
+| Fight, frame 95th percentile | 7.22 / 7.86 ms | 7.69 / 7.96 ms |
+| Fight, physics part average | 3.51 / 3.59 ms | 3.28 / 3.53 ms |
+| Fight, process part average | 0.54 / 0.63 ms | 0.61 / 0.67 ms |
+
+The floors laid were the same (same digests) before and after. The fight goes otherwise after
+(34 kills instead of 24): a monster sees the hero up to 0.1 s later (`Monster.can_see`), and the
+fight's course drifts from there. With that one cache off, the fight is the same to the last
+Health point (same digest) and costs 4.12 ms a frame. Headless, the fight's cost is mostly the
+engine's physics and the monsters' AI; what the rules above save most (redraws, uniforms, a
+GPU readback) is the renderer's and the phone's work, which a headless run doesn't measure: the
+S23 has the last word (task_98).
+
+What is left (the roadmap has the cards): floor generation's hot spots are the dressing's
+grounds (`FloorDresser._lay_ground`, dictionaries per cell), the ceiling's chunks and their mote
+emitters (`CeilingLayer._make_chunks`), the walls' bodies (`WallBuilder`) and the light field's
+bake; in a fight the engine's own physics (`move_and_slide` for each body) is most of the
+physics part.

@@ -111,6 +111,9 @@ var _knockback := Vector2.ZERO
 var _dash_velocity := Vector2.ZERO
 var _dash_time := 0.0
 var _flash_time := 0.0
+## What the last _draw() showed (_redraw_if_changed()): a ward on the body, the shadow's size.
+var _drawn_ward := false
+var _drawn_radius := -1.0
 var _afterimage_timer := 0.0
 ## What the current dash is made of: its afterimages take its color (steel when null).
 var _dash_element: VfxElementDef
@@ -573,7 +576,19 @@ func _physics_process(delta: float) -> void:
 		rig.update_state(facing, velocity.length(), is_dashing(), delta)
 		rig.modulate = _body_modulate()
 		rig.look.show_statuses(statuses, delta, _shader_shows_statuses())
-	queue_redraw()
+	_redraw_if_changed()
+
+
+## The shadow is drawn in the actor's own space (it moves with the node): only a body drawn by
+## hand (no sprite: it flashes, turns, tints), a ward on the body (it shimmers), or a shadow of
+## another size needs a new _draw() (docs/performance.md, "Redraw on change").
+func _redraw_if_changed() -> void:
+	if frames == null or _ward_on_body() or _drawn_ward or radius != _drawn_radius:
+		queue_redraw()
+
+
+func _ward_on_body() -> bool:
+	return ward > 0 and _draws_ward_on_body()
 
 
 func _tick_timers(delta: float) -> void:
@@ -641,6 +656,8 @@ func _shows_gear() -> bool:
 
 
 func _draw() -> void:
+	_drawn_ward = false
+	_drawn_radius = radius
 	if is_falling:
 		return
 	# Shadow under the feet: a flat oval of art pixels.
@@ -648,7 +665,8 @@ func _draw() -> void:
 	if frames == null:
 		var color := Color.WHITE if _flash_time > 0.0 else body_color * _body_modulate()
 		_draw_fallback_body(color)
-	if ward > 0 and _draws_ward_on_body():
+	if _ward_on_body():
+		_drawn_ward = true
 		draw_ward(self)
 
 

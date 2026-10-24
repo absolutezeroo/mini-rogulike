@@ -50,7 +50,11 @@ var pallor_color := Color.WHITE
 ## What the body shader paints on it (statuses, an elite's rim, its death).
 var look: BodyLook
 ## Shows the weapon at rest and the gear's rarity and elements (the hero; monsters don't).
-var carries_weapon := false
+var carries_weapon := false:
+	set(value):
+		carries_weapon = value
+		if value and is_node_ready():
+			warm_tops(body.sprite_frames)
 
 ## Where a weapon at rest sits per kind and facing: the middle of its sprite (art pixels from
 ## the feet), whether it is mirrored (a slung sprite's top end is at its top right: over his
@@ -79,6 +83,11 @@ var _wear_rarity := {}  # Slot -> rarity
 var _fewer := false
 var _back_key := []
 static var _tops := {}  # a body frame -> the top row of its art (for the bob)
+## A sheet's pixels, read back from the GPU once (the first frame of it measured): every frame
+## cut from it is measured on this copy (_top_of()), never by reading the texture back again.
+static var _sheets := {}  # Texture2D -> Image
+## Directed animation names (`walk` + `left` -> `walk_left`), made once (_animation_for()).
+static var _directed := {}  # StringName -> {StringName: StringName}
 
 ## Holding the weapon ready while the hero charges (show_charge): not on his back meanwhile.
 var _charging := false
@@ -88,6 +97,8 @@ var _charging := false
 @onready var weapon: AnimatedSprite2D = $Visual/Squash/Weapon
 @onready var body_armor: AnimatedSprite2D = $Visual/Squash/BodyArmor
 @onready var helmet: AnimatedSprite2D = $Visual/Squash/Helmet
+## The armor layers (_sync_layers(), every frame: one array, not one per frame).
+@onready var _layers: Array[AnimatedSprite2D] = [body_armor, helmet]
 
 
 func _ready() -> void:
@@ -105,6 +116,8 @@ func setup(frames: SpriteFrames, offset: Vector2) -> void:
 		sprite.offset = offset
 	_play(&"idle")
 	_fit_frame()
+	if carries_weapon:
+		warm_tops(frames)
 
 
 ## Shows (or hides, with null frames) the armor worn on `slot` (HEAD or BODY); above Common the
@@ -416,7 +429,7 @@ func _process(delta: float) -> void:
 ## Armor layers show the same animation and frame as the body (hidden if they don't have it).
 func _sync_layers() -> void:
 	var layered := false
-	for layer: AnimatedSprite2D in [body_armor, helmet]:
+	for layer in _layers:
 		if layer.sprite_frames == null:
 			continue
 		var shown := layer.sprite_frames.has_animation(body.animation)
@@ -450,7 +463,14 @@ func _animation_for(base: StringName) -> StringName:
 	var frames := body.sprite_frames
 	if frames == null:
 		return &""
-	var directed := StringName(String(base) + "_" + String(direction))
+	var by_direction: Variant = _directed.get(base)
+	if by_direction == null:
+		by_direction = {}
+		_directed[base] = by_direction
+	var directed: StringName = (by_direction as Dictionary).get(direction, &"")
+	if directed == &"":
+		directed = StringName(String(base) + "_" + String(direction))
+		(by_direction as Dictionary)[direction] = directed
 	if frames.has_animation(directed):
 		return directed
 	if frames.has_animation(base):
@@ -644,8 +664,37 @@ static func _top_of(texture: Texture2D) -> int:
 	if texture == null:
 		return 0
 	if not _tops.has(texture):
-		var image := texture.get_image()
-		if image and image.is_compressed():
-			image.decompress()
-		_tops[texture] = image.get_used_rect().position.y if image else 0
+		_tops[texture] = _measure_top(texture)
 	return _tops[texture]
+
+
+## Every frame of `frames` measured now (when the rig gets its body, while the floor loads),
+## so no frame shown for the first time mid-fight reads a texture back from the GPU (a hitch on
+## a phone: docs/performance.md).
+static func warm_tops(frames: SpriteFrames) -> void:
+	if frames == null or not Vfx.shown:
+		return
+	for animation in frames.get_animation_names():
+		for i in frames.get_frame_count(animation):
+			_top_of(frames.get_frame_texture(animation, i))
+
+
+## The top row of the art on `texture` (AtlasTexture.get_image(): its sheet's pixels in its
+## region), measured on its sheet's copy (_sheets).
+static func _measure_top(texture: Texture2D) -> int:
+	var atlas := texture as AtlasTexture
+	var source: Texture2D = atlas.atlas if atlas and atlas.atlas else texture
+	var image: Image = _sheets.get(source)
+	if image == null:
+		image = source.get_image()
+		if image == null:
+			return 0
+		if image.is_compressed():
+			image.decompress()
+		_sheets[source] = image
+	if atlas == null or source == texture:
+		return image.get_used_rect().position.y
+	var region := Rect2i(atlas.region).intersection(Rect2i(Vector2i.ZERO, image.get_size()))
+	if region.has_area():
+		return image.get_region(region).get_used_rect().position.y
+	return 0

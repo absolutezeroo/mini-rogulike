@@ -24,6 +24,8 @@ var _volley_timer := 0.0
 var _volley_interval := 0.0
 var _hit_this_time: Array[Actor] = []
 var _anim_time := 0.0
+## What the last _draw() showed (_draw_key()): redrawn only when it changes.
+var _drawn_key := -1
 
 
 func setup(trap_def: TrapDef, offset: float = 0.0) -> void:
@@ -94,7 +96,20 @@ func _physics_process(delta: float) -> void:
 			def.while_active(self)
 			if _timer <= 0.0:
 				_enter(Phase.IDLE)
-	queue_redraw()
+	var key := _draw_key()
+	if key != _drawn_key:
+		_drawn_key = key
+		queue_redraw()
+
+
+## What _draw() shows, as a number: the phase, and the warning's shake or the active frame.
+func _draw_key() -> int:
+	match phase:
+		Phase.WARNING:
+			return 10 + int(_anim_time * 20.0) % 2
+		Phase.ACTIVE:
+			return 100 + (mini(int(_anim_time * def.active_fps), def.active_frames - 1) if def.active_sheet else 0)
+	return 0
 
 
 func _enter(next: Phase) -> void:

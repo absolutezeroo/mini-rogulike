@@ -16,6 +16,8 @@ const REACH_MARGIN := 64.0
 ## The monsters thinking this moment, refreshed every INTERVAL (a new one is awake until the next
 ## look). Untyped: one may be freed before the next refresh.
 var awake: Array = []
+## The awake monsters by grid cell, for their spacing (MonsterBuckets, Monster._keep_spacing).
+var buckets := MonsterBuckets.new()
 
 var _world: World
 var _timer := 0.0
@@ -28,6 +30,7 @@ func _init(world: World) -> void:
 ## A new floor: nobody counted, the next tick looks at once.
 func clear() -> void:
 	awake.clear()
+	buckets.invalidate()
 	_timer = 0.0
 
 
@@ -41,6 +44,7 @@ func tick(delta: float) -> void:
 ## Wakes the monsters that must think and puts the others to sleep.
 func update() -> void:
 	awake.clear()
+	buckets.invalidate()
 	var view := _world.view_rect(WAKE_MARGIN)
 	var player := _world.player
 	var hero := player.global_position if player and is_instance_valid(player) else Vector2.INF

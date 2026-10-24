@@ -59,6 +59,10 @@ func run() -> void:
 	await combat._test_skills(game, world, player)
 	await combat._test_bestiary(world, player)
 	await combat._test_difficulty_in_game(game, world, player)
+	var perf := PerfTests.new()  # the performance shortcuts, on this floor (PerfTests)
+	add_child(perf)
+	await perf.run_in_game(world, player)
+	perf.queue_free()
 
 	var kills := [0]
 	var depth_changes := [0]

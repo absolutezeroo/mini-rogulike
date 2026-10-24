@@ -100,8 +100,8 @@ func step_on_cracks() -> void:
 	if cracks.is_empty():
 		return
 	var map := _world.map
-	for actor in _world.get_actors():
-		if actor.is_grounded():
+	for actor in _world.actors_this_frame():
+		if is_instance_valid(actor) and actor.is_grounded():
 			var crack: CrumblingFloor = cracks.get(map.world_to_cell(actor.global_position))
 			if crack and is_instance_valid(crack):
 				crack.step_on()
@@ -128,7 +128,7 @@ func seal_hole(cell: Vector2i) -> Array[Vector2i]:
 		if not pits.has(next) or sealed.has(next):
 			continue
 		sealed.append(next)
-		for step: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
+		for step: Vector2i in GridDirs.FOUR:
 			todo.append(next + step)
 	fill_cells(sealed)
 	for filled in sealed:

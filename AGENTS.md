@@ -101,6 +101,7 @@ planned, in progress and done: read it before starting, and keep it true.
 | Naming, lore, the game's voice | docs/lexicon.md |
 | The story's canon: the antagonist, places, characters, what is revealed when | docs/lore.md |
 | Visual effects: the pixel grid, elements and their kits, reviewing an effect | docs/vfx.md |
+| Performance: no per-frame allocations in hot paths, redraw on change, the benchmark probe | docs/performance.md |
 | Balance tools / past passes | docs/balance.md / docs/balance-log.md |
 | Android and Windows builds | docs/android.md |
 | Online leaderboards and gameplay statistics (Talo): the access key, the dashboard, the anti-cheat | docs/online.md |

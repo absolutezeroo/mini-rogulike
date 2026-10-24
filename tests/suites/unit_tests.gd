@@ -54,6 +54,11 @@ func run() -> void:
 	_test_text_grid()
 	_test_charged_attacks()
 	_test_blows_in_four_directions()
+	# The performance shortcuts give the plain ways' answers (PerfTests).
+	var perf := PerfTests.new()
+	add_child(perf)
+	perf.run_unit()
+	perf.free()
 	var sound := SoundTests.new()
 	sound.run()
 	sound.free()

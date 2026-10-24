@@ -10,6 +10,7 @@ const EMPTY_TEXT := Color(1, 0.92, 0.8, 0.45)
 var item: ItemDef:
 	set(value):
 		item = value
+		_sheen_kind = -1
 		queue_redraw()
 var count := 1:
 	set(value):
@@ -44,6 +45,8 @@ var fresh := false:
 		queue_redraw()
 
 var _time := 0.0
+## Whether its item's rarity has a sheen (_has_sheen()), worked out once per item: -1 not yet.
+var _sheen_kind := -1
 
 
 func _init(side: float = 60.0) -> void:
@@ -55,7 +58,17 @@ func _init(side: float = 60.0) -> void:
 		add_theme_stylebox_override(state, none)
 
 
+## Hidden (a closed panel: they are made once and kept), it doesn't run at all, and starts again
+## when shown (docs/performance.md): a bag, a shop and a forge hold dozens of slots.
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_VISIBILITY_CHANGED:
+		set_process(is_visible_in_tree())
+
+
 func _process(delta: float) -> void:
+	if not is_visible_in_tree():
+		set_process(false)
+		return
 	if selected:
 		_time += delta
 		queue_redraw()
@@ -71,8 +84,10 @@ func _process(delta: float) -> void:
 func _has_sheen() -> bool:
 	if item == null or item.icon == null or disabled:
 		return false
-	var look := ItemLook.rarity_look(item)
-	return look != null and look.sheen and ItemRarity.of(item) > ItemRarity.COMMON
+	if _sheen_kind < 0:
+		var look := ItemLook.rarity_look(item)
+		_sheen_kind = 1 if look != null and look.sheen and ItemRarity.of(item) > ItemRarity.COMMON else 0
+	return _sheen_kind == 1
 
 
 func _draw() -> void:

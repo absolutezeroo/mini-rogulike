@@ -112,4 +112,5 @@ func _refresh() -> void:
 			text = _pact.rule.status_text() if _pact.rule else ""
 	if _state.text != text:
 		_state.text = text
-	_state.add_theme_color_override("font_color", color)
+	if _state.get_theme_color(&"font_color") != color:  # (an override set again re-lays the label)
+		_state.add_theme_color_override("font_color", color)

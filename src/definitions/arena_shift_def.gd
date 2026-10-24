@@ -48,7 +48,7 @@ func pick_cells(arena_cells: Array[Vector2i], room: Rect2i, keep: Array[Vector2i
 		var take := false
 		match pattern:
 			Pattern.EDGE:
-				for direction: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
+				for direction: Vector2i in GridDirs.FOUR:
 					for step in range(1, width + 1):
 						take = take or not lookup.has(cell + direction * step)
 			Pattern.CROSS:

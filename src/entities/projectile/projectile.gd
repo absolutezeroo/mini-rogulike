@@ -124,7 +124,9 @@ func _physics_process(delta: float) -> void:
 	if _trail.size() > TRAIL_LENGTH:
 		_trail.pop_front()
 	position += _direction * step
-	queue_redraw()
+	# (Its trail reaches back to the oldest point kept; off screen, nothing to draw.)
+	if Vfx.on_screen(self, global_position.distance_to(_trail[0]) + _spec.radius + 32.0):
+		queue_redraw()
 	_travelled += step
 	if _behind_left > 0.0:
 		_behind_left -= step

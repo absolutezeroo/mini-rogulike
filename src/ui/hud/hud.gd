@@ -28,6 +28,15 @@ var _toasts: Array[String] = []
 var _split_tween: Tween
 ## The run time's text on screen (rebuilt only when it changes).
 var _time_text := ""
+## What the belt buttons and the attack button show (_process() sets them again only when the
+## belt or the weapon changed: docs/performance.md), and for which hero.
+var _belt_shown: Array[ItemDef] = [null, null, null]
+var _belt_counts := PackedInt32Array([0, 0, 0])
+var _belt_shown_for: Player
+var _weapon_shown: WeaponDef
+## The temperature last shown (_refresh_temperature()): its value, the extreme's blink, the
+## overlay's size; NAN: show it again.
+var _temp_shown := Vector4(NAN, NAN, NAN, NAN)
 ## The note on screen (its fade in, wait and fade out), stopped when a banner comes up.
 var _toast_tween: Tween
 var _toast_busy := false
@@ -367,6 +376,8 @@ func bind_player(player: Player) -> void:
 		_player.gold_changed.disconnect(_on_gold_changed)
 		_player.perks.synergy_awakened.disconnect(_on_synergy_awakened)
 	_player = player
+	_weapon_shown = null
+	_temp_shown = Vector4(NAN, NAN, NAN, NAN)
 	loot_prompt.player = player
 	_player.health_changed.connect(_on_health_changed)
 	_vignette.reset()
@@ -389,6 +400,11 @@ func bind_player(player: Player) -> void:
 	_refresh_info()
 
 
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_TRANSLATION_CHANGED:
+		_temp_shown = Vector4(NAN, NAN, NAN, NAN)  # (its words, in the new language)
+
+
 func _process(_delta: float) -> void:
 	if _player == null:
 		return
@@ -397,19 +413,27 @@ func _process(_delta: float) -> void:
 		if _skill_buttons[i].visible:
 			_skill_buttons[i].cooldown_ratio = _player.skills.cooldown_ratio(i)
 	for i in _belt_buttons.size():
-		var button := _belt_buttons[i]
 		var item := _player.belt.item_at(i)
+		var count := _player.belt.count_at(i) if item else 0
+		if item == _belt_shown[i] and count == _belt_counts[i] and _belt_shown_for == _player:
+			continue  # (as it was: nothing to set again)
+		_belt_shown[i] = item
+		_belt_counts[i] = count
+		var button := _belt_buttons[i]
 		button.visible = item != null
 		if item:
 			button.icon = item.icon
 			button.icon_tint = item.icon_tint
 			button.label = item.glyph
 			button.color = item.color
-			button.counter = _player.belt.count_at(i)
+			button.counter = count
+	_belt_shown_for = _player
 	var weapon := _player.get_weapon()
-	_attack_button.icon = weapon.icon if weapon else null
-	_attack_button.icon_tint = weapon.icon_tint if weapon else Color.WHITE
-	_attack_button.label = weapon.glyph if weapon else "-"
+	if weapon != _weapon_shown or weapon == null:
+		_weapon_shown = weapon
+		_attack_button.icon = weapon.icon if weapon else null
+		_attack_button.icon_tint = weapon.icon_tint if weapon else Color.WHITE
+		_attack_button.label = weapon.glyph if weapon else "-"
 	# The charge on the button too (the gauge at the hero's feet may be under a thumb).
 	var charging := _player.charge.is_charging() and weapon != null and weapon.charged != null
 	_attack_button.charge_ratio = _player.charge.ratio if charging else 0.0
@@ -434,6 +458,11 @@ func _refresh_skill_buttons() -> void:
 
 func _refresh_temperature() -> void:
 	var temperature := _player.temperature
+	var blink := 1.0 if temperature.is_extreme() and int(Time.get_ticks_msec() / 250.0) % 2 == 0 else 0.0
+	var key := Vector4(temperature.value, blink, _temp_overlay.size.x, _temp_overlay.size.y)
+	if key == _temp_shown:
+		return  # (as it was: no text, no uniform set again)
+	_temp_shown = key
 	var shown := absf(temperature.value) >= 1.0
 	_temp_bar.visible = shown
 	var cold := clampf((-temperature.value - 15.0) / 85.0, 0.0, 1.0)
@@ -449,7 +478,7 @@ func _refresh_temperature() -> void:
 	var is_cold := temperature.value < 0.0
 	var label := (tr("Freezing!") if is_cold else tr("Burning up!")) if temperature.is_extreme() else (tr("Cold") if is_cold else tr("Hot"))
 	_temp_bar.fill_color = BodyTemperature.COLD_COLOR if is_cold else BodyTemperature.HOT_COLOR
-	if temperature.is_extreme() and int(Time.get_ticks_msec() / 250.0) % 2 == 0:
+	if blink > 0.0:
 		_temp_bar.fill_color = _temp_bar.fill_color.lightened(0.4)
 	_temp_bar.set_values(absf(temperature.value), BodyTemperature.LIMIT, label)
 

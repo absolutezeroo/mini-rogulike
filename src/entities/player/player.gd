@@ -36,6 +36,9 @@ const HAND_REACH := 8.0
 ## Slots without a skill stay empty (null), so a skill never jumps to another button.
 const WEAPON_SKILL_SLOTS := 2
 const SKILL_COUNT := 4
+## The skill and belt buttons' input actions, by slot (read every frame: no name formatted).
+const SKILL_ACTIONS: Array[StringName] = [&"skill_1", &"skill_2", &"skill_3", &"skill_4"]
+const BELT_ACTIONS: Array[StringName] = [&"belt_1", &"belt_2", &"belt_3"]
 const STEP_INTERVAL := 0.3
 ## Gold for breaking gear down from the bag.
 const DISMANTLE: DismantleRules = preload("res://data/items/dismantle.tres")
@@ -146,13 +149,13 @@ func _think(delta: float) -> void:
 	_update_attack(delta, fresh)
 
 	for i in mini(skills.skills.size(), SKILL_COUNT):
-		if fresh and skills.skills[i] and Input.is_action_just_pressed("skill_%d" % (i + 1)):
+		if fresh and skills.skills[i] and Input.is_action_just_pressed(SKILL_ACTIONS[i]):
 			use_skill(i)
 
 	if fresh and Input.is_action_just_pressed("quick_item"):
 		use_quick_item()
 	for i in range(1, Belt.SLOTS):
-		if fresh and Input.is_action_just_pressed("belt_%d" % (i + 1)):
+		if fresh and Input.is_action_just_pressed(BELT_ACTIONS[i]):
 			use_belt(i)
 
 

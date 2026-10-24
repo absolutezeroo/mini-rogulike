@@ -49,7 +49,13 @@ var _dying := false
 ## Nothing is on the body and the shader knows it (for this rim and these layers): nothing to do
 ## until a status, a hit or a change comes.
 var _quiet := false
-var _quiet_key := []
+## What the shader was last told of the rim and the layers (no array built every frame to compare):
+## `_told` false until it was told once.
+var _told := false
+var _told_enabled := false
+var _told_outline := Color.TRANSPARENT
+var _told_layered := false
+var _told_beat := true
 var _values := PackedFloat32Array()
 ## The uniforms set every frame something changes, in `_values`' order.
 const VALUES: Array[StringName] = [&"burn", &"chill", &"frozen", &"poison", &"poison_wave", &"haunt", &"crackle"]
@@ -125,8 +131,9 @@ func show_statuses(statuses: StatusSet, delta: float, enabled: bool) -> void:
 	if _dying:
 		return
 	var calm := (not enabled or statuses.is_empty()) and _crackle < 0
-	var key := [enabled, outline, layered, outline_beat]
-	if calm and _quiet and key == _quiet_key:
+	var same := _told and enabled == _told_enabled and outline == _told_outline and layered == _told_layered \
+		and outline_beat == _told_beat
+	if calm and _quiet and same:
 		return
 	var burn := 0.0
 	var chill := 0.0
@@ -175,12 +182,16 @@ func show_statuses(statuses: StatusSet, delta: float, enabled: bool) -> void:
 		for i in VALUES.size():
 			_param(VALUES[i], values[i])
 		_param(&"crackle_row", _crackle_row)
-	if key != _quiet_key:
+	if not same:
 		_param(&"outline_color", outline if enabled else Color.TRANSPARENT)
 		_param(&"outline_beat", outline_beat)
 		_param(&"outer_rim", not layered)
 	_quiet = calm
-	_quiet_key = key
+	_told = true
+	_told_enabled = enabled
+	_told_outline = outline
+	_told_layered = layered
+	_told_beat = outline_beat
 
 
 ## The body's frame now shown (its quad in the sprite's local space, art pixels).

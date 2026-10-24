@@ -268,7 +268,7 @@ static func _cut_off(map: DungeonMap) -> Array[Vector2i]:
 	seen[start.y * w + start.x] = 1
 	while not queue.is_empty():
 		var cell: Vector2i = queue.pop_back()
-		for step: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
+		for step: Vector2i in GridDirs.FOUR:
 			var next := cell + step
 			if map.is_ground(next) and seen[next.y * w + next.x] == 0:
 				seen[next.y * w + next.x] = 1
@@ -290,7 +290,7 @@ static func _farthest_walk(map: DungeonMap) -> Vector2i:
 	while at < open.size():
 		var cell := open[at]
 		at += 1
-		for step: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
+		for step: Vector2i in GridDirs.FOUR:
 			var next := cell + step
 			if not steps.has(next) and map.is_ground(next):
 				steps[next] = steps[cell] + 1

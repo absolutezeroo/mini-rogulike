@@ -577,10 +577,16 @@ func spawn_heat_source(def: HeatSourceDef, rect: Rect2i) -> HeatSource:
 
 
 ## The floor's campfires, springs and hot or frozen ground (see BodyTemperature).
+## Asked by every body every frame (BodyTemperature): filtered only when one is gone.
 func get_heat_sources() -> Array[HeatSource]:
-	_heat_sources = _heat_sources.filter(func(source: Variant) -> bool:
-		return is_instance_valid(source) and not (source as Node).is_queued_for_deletion())
+	if _heat_sources.any(_is_gone):
+		_heat_sources = _heat_sources.filter(func(source: Variant) -> bool: return not _is_gone(source))
 	return _heat_sources
+
+
+## A node freed or about to be (the floor's lists drop it).
+static func _is_gone(node: Variant) -> bool:
+	return not is_instance_valid(node) or (node as Node).is_queued_for_deletion()
 
 
 func has_heat_source_in(def: HeatSourceDef, room: Rect2i) -> bool:
@@ -596,9 +602,12 @@ func spawn_dark_room(def: DarkRoomDef, room: Rect2i) -> DarkRoom:
 
 
 func is_dark_room(room: Rect2i) -> bool:
-	_dark_rooms = _dark_rooms.filter(func(dark: Variant) -> bool:
-		return is_instance_valid(dark) and not (dark as Node).is_queued_for_deletion())
-	return _dark_rooms.any(func(dark: DarkRoom) -> bool: return dark.room == room)
+	if _dark_rooms.any(_is_gone):
+		_dark_rooms = _dark_rooms.filter(func(dark: Variant) -> bool: return not _is_gone(dark))
+	for dark in _dark_rooms:
+		if dark.room == room:
+			return true
+	return false
 
 
 func spawn_quicksand(def: QuicksandDef, rect: Rect2i) -> Quicksand:

@@ -93,7 +93,7 @@ func _process(_delta: float) -> void:
 	_banner.visible = here
 	_arrow.visible = here
 	_refresh_gift()
-	_arrow.queue_redraw()
+	_arrow.refresh()
 
 
 func _refresh_gift() -> void:
@@ -113,24 +113,64 @@ func _refresh_gift() -> void:
 ## turned sprite), its dark rim reading on any floor, breathing a pixel in and out.
 class Arrow extends Control:
 	var hud: AbyssHud
+	## What was last drawn: whether it pointed, its angle and its tip (screen pixels).
+	var _drawn_pointing := false
+	var _drawn_angle := 0.0
+	var _drawn_tip := Vector2.INF
+	## The chevron's cells for _mask_key (offsets from the grid cell under the tip) and colors:
+	## worked out again only when the angle or the tip's place inside its grid cell changes.
+	var _mask_key := Vector3.INF
+	var _cells := PackedVector2Array()
+	var _colors := PackedColorArray()
+
+	## Every frame (AbyssHud._process): drawn again only when it turns, breathes or moves.
+	func refresh() -> void:
+		var pointing := hud != null and hud.is_pointing()
+		var angle := 0.0
+		var tip := Vector2.INF
+		if pointing:
+			angle = _angle()
+			tip = _tip(angle)
+		if pointing == _drawn_pointing and angle == _drawn_angle and tip == _drawn_tip:
+			return
+		_drawn_pointing = pointing
+		_drawn_angle = angle
+		_drawn_tip = tip
+		queue_redraw()
+
+	## The nearest of 16 directions toward the door.
+	func _angle() -> float:
+		return snappedf((hud.door_on_screen() - hud.hero_on_screen()).normalized().angle(), TAU / 16.0)
+
+	## Its point, a pixel out on the beat (twice a second).
+	func _tip(angle: float) -> Vector2:
+		var beat := 1.0 if fmod(Time.get_ticks_msec() / 1000.0 * 2.0, 1.0) < 0.5 else 0.0
+		return hud.hero_on_screen() + Vector2.from_angle(angle) * (ARROW_RADIUS + beat * ARROW_PX)
 
 	func _draw() -> void:
 		if hud == null or not hud.is_pointing():
 			return
-		var hero := hud.hero_on_screen()
-		var toward := (hud.door_on_screen() - hero).normalized()
-		var angle := snappedf(toward.angle(), TAU / 16.0)
-		var direction := Vector2.from_angle(angle)
-		var beat := 1.0 if fmod(Time.get_ticks_msec() / 1000.0 * 2.0, 1.0) < 0.5 else 0.0
-		var tip := hero + direction * (ARROW_RADIUS + beat * ARROW_PX)
-		var holy := VfxElementDef.named(&"holy")
-		# Each screen cell of the art's grid around the tip: in the chevron (a triangle pointing
-		# along +x, its middle cut out, turned by `angle`), on its dark rim, or neither.
+		var angle := _angle()
+		var tip := _tip(angle)
 		var origin := (tip / ARROW_PX).floor() * ARROW_PX
+		var offset := tip - origin
+		if Vector3(angle, offset.x, offset.y) != _mask_key:
+			_mask_key = Vector3(angle, offset.x, offset.y)
+			_build_mask(angle, offset)
+		for i in _cells.size():
+			draw_rect(Rect2(origin + _cells[i], Vector2.ONE * ARROW_PX), _colors[i])
+
+	## Each screen cell of the art's grid around the tip (`offset`: the tip inside its own cell):
+	## in the chevron (a triangle pointing along +x, its middle cut out, turned by `angle`), on its
+	## dark rim, or neither.
+	func _build_mask(angle: float, offset: Vector2) -> void:
+		var holy := VfxElementDef.named(&"holy")
+		_cells.clear()
+		_colors.clear()
 		for dy in range(-15, 16):
 			for dx in range(-15, 16):
-				var at := origin + Vector2(dx, dy) * ARROW_PX
-				var local := (at + Vector2.ONE * ARROW_PX * 0.5 - tip).rotated(-angle) / ARROW_PX
+				var cell := Vector2(dx, dy) * ARROW_PX
+				var local := (cell + Vector2.ONE * ARROW_PX * 0.5 - offset).rotated(-angle) / ARROW_PX
 				var inside := _inside(local)
 				if not inside and not _inside(local + Vector2(1, 0)) and not _inside(local + Vector2(-1, 0)) \
 						and not _inside(local + Vector2(0, 1)) and not _inside(local + Vector2(0, -1)):
@@ -138,7 +178,8 @@ class Arrow extends Control:
 				var color := holy.edge()
 				if inside:
 					color = holy.core() if -local.x < 5.0 else holy.shade(0.25)
-				draw_rect(Rect2(at, Vector2.ONE * ARROW_PX), color)
+				_cells.append(cell)
+				_colors.append(color)
 
 
 	## In the arrowhead (local art pixels, the tip at 0 pointing along +x): a narrow wedge 13

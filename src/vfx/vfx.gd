@@ -21,6 +21,16 @@ const ALERT_EMOTE: Texture2D = preload("res://assets/ui/emotes/emote22.png")
 static var shown := true
 
 
+## Whether what `item` draws within `reach` px of its origin can be on screen (the viewport, plus
+## World.view_rect()'s usual 96 px margin). Something animated off screen needs no redraw: it is
+## drawn again the frame it comes back into view (docs/performance.md, "Redraw on change").
+static func on_screen(item: CanvasItem, reach: float = 0.0) -> bool:
+	if not item.is_inside_tree():
+		return false
+	var to_screen := item.get_global_transform_with_canvas()
+	return item.get_viewport_rect().grow((reach + 96.0) * to_screen.get_scale().x).has_point(to_screen.origin)
+
+
 ## An effect that is only seen (sparks, arcs, sheets, numbers, rings...): skipped when nothing
 ## is shown (`shown` off). Warnings that something reads (CellWarning) and the dungeon's own
 ## layers are not.

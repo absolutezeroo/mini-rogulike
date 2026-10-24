@@ -48,9 +48,8 @@ func _nearest() -> Interactable:
 		return null
 	var best: Interactable = null
 	var best_distance := INF
-	for node in get_tree().get_nodes_in_group(Interactable.GROUP):
-		var thing := node as Interactable
-		if thing == null or not thing.can_use(player):
+	for thing in Interactable.in_tree:
+		if not thing.can_use(player):
 			continue
 		var distance := thing.global_position.distance_to(player.global_position)
 		if distance < best_distance:

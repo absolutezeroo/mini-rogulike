@@ -351,6 +351,9 @@ func _process(_delta: float) -> void:
 			near.append(actor)
 	if hero and is_instance_valid(hero) and not hero.is_dead:
 		_add_body(hero)
+	# Nearest first only when they don't all fit (the shader and shown_at() take the nearest body
+	# to each point: the order of those sent changes nothing; no sort every frame).
+	if hero and is_instance_valid(hero) and not hero.is_dead and near.size() + 1 > MAX_BODIES:
 		near.sort_custom(func(a: Actor, b: Actor) -> bool:
 			return a.global_position.distance_squared_to(hero.global_position) < b.global_position.distance_squared_to(hero.global_position))
 	for actor in near:

@@ -12,6 +12,10 @@ const BODY_ROOM := 14.0
 var _world: World
 var _actors_frame := -1
 var _actors_cache: Array[Actor] = []
+var _actors_step := -1
+var _actors_in_step: Array[Actor] = []
+## body_fits()'s query, kept between calls.
+var _fit_query: PhysicsShapeQueryParameters2D
 var _view_frame := -1
 var _view_cache := Rect2()
 
@@ -54,13 +58,17 @@ func nearest_free_point(point: Vector2, max_radius: int = 12, clear_of: Array[Ac
 		var best := Vector2i(-1, -1)
 		var best_distance := INF
 		for y in range(origin.y - radius, origin.y + radius + 1):
-			for x in range(origin.x - radius, origin.x + radius + 1):
-				if maxi(absi(x - origin.x), absi(y - origin.y)) != radius:
-					continue  # only the ring at this radius
+			# Only the ring at this radius (its top and bottom rows whole, its sides' two cells
+			# between), in the square's reading order: ties go to the same cell.
+			var edge_row := absi(y - origin.y) == radius
+			var x := origin.x - radius
+			while x <= origin.x + radius:
 				var cell := Vector2i(x, y)
-				var distance := map.cell_to_world(cell).distance_squared_to(point)
-				if distance < best_distance and is_free_cell(cell) and not is_under_body(map.cell_to_world(cell), clear_of, clearance) \
-						and (room <= 0.0 or body_fits(map.cell_to_world(cell), room)):
+				x = x + 1 if edge_row or radius == 0 else x + 2 * radius
+				var at := map.cell_to_world(cell)
+				var distance := at.distance_squared_to(point)
+				if distance < best_distance and is_free_cell(cell) and not is_under_body(at, clear_of, clearance) \
+						and (room <= 0.0 or body_fits(at, room)):
 					best = cell
 					best_distance = distance
 		if best != Vector2i(-1, -1):
@@ -90,14 +98,15 @@ func find_open_point_near(center: Vector2, distance: float, room: float = BODY_R
 
 
 ## Nothing that stops a body (walls, props, chests, ponds...) within `radius` of `point`.
+## (One shape and one query, kept: it runs for every candidate while a floor is laid.)
 func body_fits(point: Vector2, radius: float = BODY_ROOM) -> bool:
-	var shape := CircleShape2D.new()
-	shape.radius = radius
-	var query := PhysicsShapeQueryParameters2D.new()
-	query.shape = shape
-	query.transform = Transform2D(0.0, point)
-	query.collision_mask = Layers.WORLD | Layers.WATER
-	return _world.get_world_2d().direct_space_state.intersect_shape(query, 1).is_empty()
+	if _fit_query == null:
+		_fit_query = PhysicsShapeQueryParameters2D.new()
+		_fit_query.shape = CircleShape2D.new()
+		_fit_query.collision_mask = Layers.WORLD | Layers.WATER
+	(_fit_query.shape as CircleShape2D).radius = radius
+	_fit_query.transform = Transform2D(0.0, point)
+	return _world.get_world_2d().direct_space_state.intersect_shape(_fit_query, 1).is_empty()
 
 
 ## `exclude`: bodies the ray goes through (the thing looked at, solid itself: the merchant...).
@@ -106,9 +115,16 @@ func has_line_of_sight(from: Vector2, to: Vector2, exclude: Array[RID] = []) -> 
 	return _world.get_world_2d().direct_space_state.intersect_ray(query).is_empty()
 
 
-## World.get_actors(), worked out once per frame for everyone who asks (plants, quicksand...).
-## Read only: the same array is handed to everyone.
+## World.get_actors(), worked out once per frame for everyone who asks (plants, quicksand, cracked
+## floor...). Read only: the same array is handed to everyone. One list per physics step and
+## one per drawn frame (the bodies freed after a physics step are gone from the next list).
 func actors_this_frame() -> Array[Actor]:
+	if Engine.is_in_physics_frame():
+		var step := Engine.get_physics_frames()
+		if step != _actors_step:
+			_actors_step = step
+			_actors_in_step = _world.get_actors()
+		return _actors_in_step
 	var frame := Engine.get_process_frames()
 	if frame != _actors_frame:
 		_actors_frame = frame

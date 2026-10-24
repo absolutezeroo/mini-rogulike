@@ -33,7 +33,7 @@ func setup(layer: GroundLayerDef, map: DungeonMap, cells: Dictionary, bounds: Re
 			var cell := Vector2i(x, y)
 			var here := cells.has(cell)
 			if not map.is_floor(cell):
-				for dir: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
+				for dir: Vector2i in GridDirs.FOUR:
 					here = here or cells.has(cell + dir)
 			ground.set_pixel(x, y, Color.WHITE if here else Color.BLACK)
 			floor_mask.set_pixel(x, y, Color.WHITE if map.is_floor(cell) else Color.BLACK)

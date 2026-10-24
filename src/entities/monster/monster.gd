@@ -41,6 +41,11 @@ const STUCK_PROGRESS := 0.3
 const SPACING := 4.0
 ## A straight walk to a point is checked again after this long (see has_clear_walk()).
 const WALK_CHECK_INTERVAL := 0.2
+## A line of sight is cast again after this long (s), or once either end moved SIGHT_MOVE px.
+const SIGHT_RECHECK := 0.1
+const SIGHT_MOVE := 4.0
+## The turns (radians) a walker tries, in order, to keep off a hole ahead (_avoid_holes).
+const HOLE_TURNS: Array[float] = [0.0, 0.6, -0.6, 1.3, -1.3]
 const HEAVY_STEP_INTERVAL := 0.45
 ## The rim a body that warns by its rim wears while it winds up (TelegraphView's red).
 const WARNING_RIM := Color(1.0, 0.22, 0.2)
@@ -72,6 +77,13 @@ var _detect_multiplier := 1.0
 var _stuck_time := 0.0
 var _last_position := Vector2.INF
 var _walk_checks := {}  # cell -> [physics frame, clear]
+## The last line of sight cast (can_see()): to whom, when, from where to where, and its answer.
+var _sight_of := 0  # (an instance id: the one seen may be freed meanwhile)
+var _sight_frame := -1000
+var _sight_from := Vector2.ZERO
+var _sight_to := Vector2.ZERO
+var _sight_clear := false
+var _walk_query: PhysicsShapeQueryParameters2D
 
 
 func setup(monster_def: MonsterDef, depth: int, config: DungeonConfig) -> void:
@@ -381,21 +393,35 @@ func _walk_is_clear(point: Vector2) -> bool:
 			var cell := world.map.world_to_cell(global_position + motion * (float(i) / steps))
 			if cell != from_cell and cell != to_cell and (world.nav.is_blocked(cell) or world.has_pit(cell)):
 				return false
-	var shape := CircleShape2D.new()
-	shape.radius = maxf(radius - 1.0, 2.0)
-	var query := PhysicsShapeQueryParameters2D.new()
-	query.shape = shape
+	if _walk_query == null:  # (one query kept: a crowd asks often)
+		_walk_query = PhysicsShapeQueryParameters2D.new()
+		_walk_query.shape = CircleShape2D.new()
+		_walk_query.exclude = [get_rid()]
+	var query := _walk_query
+	(query.shape as CircleShape2D).radius = maxf(radius - 1.0, 2.0)
 	query.transform = Transform2D(0.0, global_position)
 	query.motion = motion
 	query.collision_mask = Layers.WORLD | (0 if flies else Layers.WATER)
-	query.exclude = [get_rid()]
 	var result := get_world_2d().direct_space_state.cast_motion(query)
 	return result.is_empty() or result[0] >= 0.999
 
 
+## Within `max_distance` and nothing on the world's layer between them. The ray is cast again
+## only after SIGHT_RECHECK seconds or once either moved SIGHT_MOVE px (a chasing pack asks
+## every frame: one ray each per frame was the costliest of its physics; docs/performance.md).
 func can_see(other: Actor, max_distance: float) -> bool:
-	return global_position.distance_to(other.global_position) <= max_distance \
-		and world.has_line_of_sight(global_position, other.global_position)
+	if global_position.distance_to(other.global_position) > max_distance:
+		return false
+	var frame := Engine.get_physics_frames()
+	if other.get_instance_id() != _sight_of or frame - _sight_frame >= roundi(SIGHT_RECHECK * Engine.physics_ticks_per_second) \
+			or global_position.distance_squared_to(_sight_from) > SIGHT_MOVE * SIGHT_MOVE \
+			or other.global_position.distance_squared_to(_sight_to) > SIGHT_MOVE * SIGHT_MOVE:
+		_sight_of = other.get_instance_id()
+		_sight_frame = frame
+		_sight_from = global_position
+		_sight_to = other.global_position
+		_sight_clear = world.has_line_of_sight(global_position, other.global_position)
+	return _sight_clear
 
 
 ## Distance from which the weapon can hit the target.
@@ -497,7 +523,10 @@ func _track_progress(delta: float) -> void:
 ## pushing in a line through a door.
 func _keep_spacing(direction: Vector2) -> Vector2:
 	var push := Vector2.ZERO
-	for entry: Variant in world.activity.awake:
+	var awake := world.activity.awake
+	# Only those in the cells around (the same sum, in the same order, as over the whole list).
+	for index in world.activity.buckets.near(awake, global_position, radius + SPACING):
+		var entry: Variant = awake[index]
 		if not is_instance_valid(entry) or entry == self:
 			continue
 		var other := entry as Monster
@@ -517,7 +546,7 @@ func _keep_spacing(direction: Vector2) -> Vector2:
 ## they veer off, or stop.
 func _avoid_holes(direction: Vector2) -> Vector2:
 	var look_ahead := radius + 12.0
-	for angle: float in [0.0, 0.6, -0.6, 1.3, -1.3]:
+	for angle in HOLE_TURNS:
 		var turned := direction.rotated(angle)
 		if not world.has_pit(world.map.world_to_cell(global_position + turned.normalized() * look_ahead)):
 			return turned

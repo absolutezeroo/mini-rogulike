@@ -70,6 +70,13 @@ is `MonsterOverlay`.
   `explosion_radius`).
 - The **Pyre Acolyte** heals the monsters around it.
 
+How every monster looks: it spots the hero within its reach (`detect_radius`, further while it
+chases) when nothing on the world's layer is between them. The line of sight is looked at again
+every 0.1 s, or as soon as either of them moved 4 px (`Monster.can_see`): a monster may notice the
+hero, or lose him behind a wall, a few frames late, never more. A pack spreads around the hero by
+stepping away from the monsters it bumps into (`_keep_spacing`, asked of the nearby cells only:
+docs/performance.md).
+
 ## Monster ranks: Elite, Fell, Legendary, Celestial
 
 Any monster can come at a rank (`MonsterRankDef`, `data/monster_ranks/`; `DungeonConfig.elite_rank`

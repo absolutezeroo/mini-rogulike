@@ -11,6 +11,9 @@ extends Node2D
 signal used(by: Player)
 
 const GROUP := &"interactables"
+## Every Interactable in the tree, in the order they came in (the group's): the Interactor walks
+## it every physics frame without asking the tree for the group (docs/performance.md).
+static var in_tree: Array[Interactable] = []
 
 ## The word on the button ("Trade", "Pray"...), in English: translated where it is shown.
 var verb := "Use"
@@ -36,6 +39,11 @@ var _time := 0.0
 
 func _enter_tree() -> void:
 	add_to_group(GROUP)
+	in_tree.append(self)
+
+
+func _exit_tree() -> void:
+	in_tree.erase(self)
 
 
 func _ready() -> void:

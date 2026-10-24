@@ -142,6 +142,8 @@ tools/levels/        level_art.py (the deep water, paper boats and the ceilings'
                      palette), level_shots (screenshots of shapes, signature rooms, ceilings, the big map)
 tools/balance/       Balance tools (not exported): model, arena, packs, marginal values, economy, compound
                      checks; builds and targets in data/balance/ (see docs/balance.md)
+tools/perf/          perf_probe (not exported): floor generation and a 40-monster fight timed headless
+                     with fixed seeds (see docs/performance.md)
 ```
 
 **Rule of thumb:** `data/` says *what* exists, `src/definitions/` says *what a thing can have*,
@@ -282,6 +284,9 @@ timer, nothing queued, never the network. In a test launch the online files star
 the player's real ones are not even read while the autoloads start.
 
 ## Rendering
+
+The rules that keep frames cheap on a phone (no allocation in hot paths, redraw on change, no
+GPU readback while playing) and the probe that measures them: docs/performance.md.
 
 - **Drawing the floor**: `DungeonView` draws the map in 8x8-cell chunks, each its own canvas item,
   so the renderer skips the ones off screen; inside a chunk, tiles go texture by texture to batch.

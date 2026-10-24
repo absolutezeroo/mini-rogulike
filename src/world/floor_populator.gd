@@ -304,7 +304,7 @@ static func _is_edge(map: DungeonMap, room: Rect2i, cell: Vector2i) -> bool:
 	if not room.has_point(cell) or not map.is_floor(cell):
 		return false
 	var touches_wall := false
-	for dir: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
+	for dir: Vector2i in GridDirs.FOUR:
 		touches_wall = touches_wall or not map.is_floor(cell + dir)
 	if not touches_wall:
 		return false

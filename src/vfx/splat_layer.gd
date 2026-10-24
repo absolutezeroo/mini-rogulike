@@ -30,10 +30,20 @@ var splats_made := 0
 var _flying := false
 var _time := 0.0
 var _redraw_timer := 0.0
+## The chips in the air are drawn on a child of their own, every frame while they fly; the layer
+## (hundreds of splat rows and landed chips) only when one lands or something is added
+## (docs/performance.md). The flying ones are always the newest (the end of `_chips`), so drawn
+## after the landed ones, as when one node drew them all.
+var _air := Node2D.new()
+## Chips landed when the layer last drew (chips_made less those in the air).
+var _drawn_landed := 0
 
 
 func _ready() -> void:
 	z_index = -8  # on the ground, under whoever walks by
+	_air.name = "Air"
+	_air.draw.connect(_draw_flying)
+	add_child(_air)
 
 
 ## A blob at `at` (`size` 1 = a monster's death, smaller for a drop on a hit), its drops
@@ -90,6 +100,7 @@ func add_debris(at: Vector2, matter: ImpactMaterialDef, size: float, direction: 
 		_chips.pop_front()
 	_flying = true
 	queue_redraw()
+	_air.queue_redraw()
 
 
 func chip_count() -> int:
@@ -130,7 +141,11 @@ func _rows(cells: Dictionary) -> Array[Rect2]:
 func _process(delta: float) -> void:
 	_time += delta
 	if _flying:
-		queue_redraw()  # chips in the air (this frame draws them, landed or not)
+		_air.queue_redraw()  # chips in the air (this frame draws them)
+		var landed := chips_made - _in_air()
+		if landed != _drawn_landed:
+			_drawn_landed = landed
+			queue_redraw()  # some landed: the layer draws them now
 		_flying = not _chips.is_empty() and _time - float(_chips[-1].born) <= CHIP_FLIGHT
 	_redraw_timer -= delta
 	if _redraw_timer > 0.0 or _splats.is_empty():
@@ -172,10 +187,28 @@ func _draw() -> void:
 			_dithered(row, color, fade)
 		for spot: Rect2 in splat.shine:
 			_dithered(spot, splat.light, fade)
-	for chip in _chips:
-		var t := clampf((_time - float(chip.born)) / CHIP_FLIGHT, 0.0, 1.0)
-		var at: Vector2 = (chip.from as Vector2).lerp(chip.to, t) + Vector2(0, -sin(t * PI) * float(chip.height))
-		at = at.snapped(Vector2(PIXEL, PIXEL))
-		var color: Color = chip.color
-		draw_rect(Rect2(at + Vector2(0, PIXEL), chip.size), color.darkened(0.55))  # its shadow edge
-		draw_rect(Rect2(at, chip.size), color)
+	var landed := _chips.size() - _in_air()
+	for i in landed:
+		_draw_chip(self, _chips[i])
+
+
+## How many of the newest chips are still in the air.
+func _in_air() -> int:
+	var flying := 0
+	while flying < _chips.size() and _time - float(_chips[_chips.size() - 1 - flying].born) < CHIP_FLIGHT:
+		flying += 1
+	return flying
+
+
+func _draw_flying() -> void:
+	for i in range(_chips.size() - _in_air(), _chips.size()):
+		_draw_chip(_air, _chips[i])
+
+
+func _draw_chip(canvas: CanvasItem, chip: Dictionary) -> void:
+	var t := clampf((_time - float(chip.born)) / CHIP_FLIGHT, 0.0, 1.0)
+	var at: Vector2 = (chip.from as Vector2).lerp(chip.to, t) + Vector2(0, -sin(t * PI) * float(chip.height))
+	at = at.snapped(Vector2(PIXEL, PIXEL))
+	var color: Color = chip.color
+	canvas.draw_rect(Rect2(at + Vector2(0, PIXEL), chip.size), color.darkened(0.55))  # its shadow edge
+	canvas.draw_rect(Rect2(at, chip.size), color)

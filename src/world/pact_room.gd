@@ -42,6 +42,8 @@ var _see_timer := 0.0
 var _sink := 0.0
 var _altar: Node2D
 var _sigil: Node2D
+## The rune's reveal and burn last given to its shader (_drive_rune()).
+var _rune_sent := Vector2(-1.0, -1.0)
 var _glow: LightSource
 ## The sigil draws itself stroke by stroke the first time it shows on screen and when a kept pact
 ## turns it gold; swearing burns part of it away, a broken pact more (rune.gdshader).
@@ -141,7 +143,7 @@ static func _flood(map: DungeonMap, room_rect: Rect2i, door: Array[Vector2i]) ->
 	seen_cells[map.start_cell] = true
 	while not queue.is_empty():
 		var cell: Vector2i = queue.pop_back()
-		for step: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
+		for step: Vector2i in GridDirs.FOUR:
 			var next := cell + step
 			if seen_cells.has(next) or not map.is_floor(next) or room_rect.has_point(next) or door.has(next):
 				continue
@@ -348,9 +350,11 @@ func _finish() -> void:
 func _physics_process(delta: float) -> void:
 	_time += delta
 	if _sigil:
-		_sigil.queue_redraw()
+		# (It turns and breathes on screen; off screen nothing needs drawing.)
+		if Vfx.on_screen(_sigil, 40.0):
+			_sigil.queue_redraw()
 		_drive_rune(delta)
-	if _altar and _sink < 1.0:
+	if _altar and _sink < 1.0 and Vfx.on_screen(_altar, 48.0):
 		_altar.queue_redraw()
 	var player := _world.player
 	if player == null or player.is_dead:
@@ -394,8 +398,11 @@ func _drive_rune(delta: float) -> void:
 		_draw_rune()
 	_rune_burn = move_toward(_rune_burn, _rune_burn_to, delta * 0.6)
 	var drawn := 1.0 if _rune_start <= -5.0 else (0.0 if _rune_start < 0.0 else clampf(floorf((_time - _rune_start) * 24.0) / 24.0, 0.0, 1.0))
-	_rune.set_shader_parameter("reveal", drawn)
-	_rune.set_shader_parameter("burn", floorf(_rune_burn * 24.0) / 24.0)
+	var burn := floorf(_rune_burn * 24.0) / 24.0
+	if drawn != _rune_sent.x or burn != _rune_sent.y:  # (whole 24ths: most frames, no change)
+		_rune_sent = Vector2(drawn, burn)
+		_rune.set_shader_parameter("reveal", drawn)
+		_rune.set_shader_parameter("burn", burn)
 
 
 ## The sigil on the floor before the door: a crimson ring, a gold one and a seven-pointed star,

@@ -53,7 +53,8 @@ func _physics_process(delta: float) -> void:
 			if distance < PICKUP_DISTANCE:
 				_collect(player)
 				return
-	queue_redraw()
+	if Vfx.on_screen(self, 16.0 + _height):
+		queue_redraw()  # (its glint and hop move every frame: off screen, nothing to draw)
 
 
 func _collect(player: Player) -> void:
