@@ -1,6 +1,6 @@
 {
   "name": "Le Puits des Âmes — Roadmap",
-  "next_id": 159,
+  "next_id": 162,
   "tags": [
     "pc",
     "test",
@@ -2048,8 +2048,8 @@
     {
       "id": "task_140",
       "title": "Réglages à distance (Talo Game Config)",
-      "description": "Validé. Ajuster des chiffres d'équilibrage, lancer un événement du week-end ou changer le modificateur du Défi du jour sans mise à jour. Valeurs par défaut dans les données du jeu, la config distante ne fait que les remplacer (bornées).",
-      "status": "todo",
+      "description": "Fait (à valider). Réglages lus dans la « Game config » de Talo (GET /v1/game-config, sans identifiant de joueur, seulement après un choix en ligne), vérifiés contre une liste blanche en données (data/online/remote_config.tres) : clé inconnue, valeur hors bornes ou id inconnu ignorés. Appliqués seulement à l'écran titre et au début d'une partie (une partie garde ses valeurs, sauvegardées avec elle), avec une porte de versions (min_version / max_version). Clés : multiplicateurs de Vie et de dégâts des ennemis par difficulté (via FloorRules), multiplicateur d'âmes, présage du Glas de l'Aube pour une date (malédiction ou événement d'étage), événement limité (nom FR/EN, fin, bonus d'âmes, événement d'étage favorisé), message du jour FR/EN sur l'écran titre, interrupteurs d'urgence classements / statistiques. Les 23 clés sont créées dans Talo avec des valeurs neutres. Onglet « Remote » du panneau debug pour simuler une valeur. Politique 1.2 (lecture des réglages : IP vue par Talo). Docs : online.md, balance.md, privacy-ops.md.",
+      "status": "review",
       "priority": "low",
       "epic_id": "epic_5",
       "due_date": null,
@@ -2058,7 +2058,7 @@
         "équilibrage"
       ],
       "created_at": 1792768111,
-      "updated_at": 1792768111
+      "updated_at": 1792800356
     },
     {
       "id": "task_141",
@@ -2338,6 +2338,51 @@
       ],
       "created_at": 1792779300,
       "updated_at": 1792779446
+    },
+    {
+      "id": "task_159",
+      "title": "Réglages à distance : vérifier sur téléphone et dans le tableau de bord",
+      "description": "Non vérifié : la plaque d'événement et le message du jour sur un vrai téléphone (lisibilité, coupures de lignes FR), le libellé exact de la page « Game config » du tableau de bord Talo, le délai réel (cache Talo 10 min) entre un changement et le jeu, et une vraie partie sous présage (malédiction sur tous les étages du Glas : trop dur ?).",
+      "status": "backlog",
+      "priority": "medium",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "en ligne",
+        "playtest"
+      ],
+      "created_at": 1792800356,
+      "updated_at": 1792800356
+    },
+    {
+      "id": "task_160",
+      "title": "Réglages à distance : tester un événement planifié",
+      "description": "Talo peut planifier un changement de config (scheduled changes). Essayer un vrai week-end : nom posé à l'heure dite, fin automatique, message du jour, puis tout remis à neutre.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_5",
+      "due_date": null,
+      "tags": [
+        "en ligne",
+        "test"
+      ],
+      "created_at": 1792800356,
+      "updated_at": 1792800356
+    },
+    {
+      "id": "task_161",
+      "title": "Présage du jour : l'annoncer sur le bouton du Glas et dans le classement",
+      "description": "Idée : quand un présage est posé, le montrer aussi sur le bouton du Glas de l'Aube (écran titre) et en tête du classement du jour, pour que les joueurs comparent leurs scores sous le même présage.",
+      "status": "backlog",
+      "priority": "low",
+      "epic_id": "epic_7",
+      "due_date": null,
+      "tags": [
+        "idée",
+        "en ligne"
+      ],
+      "created_at": 1792800356,
+      "updated_at": 1792800356
     }
   ]
 }

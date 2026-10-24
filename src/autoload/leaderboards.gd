@@ -194,8 +194,8 @@ func forget() -> void:
 ## queued (none without a server: an offline build keeps nothing).
 func record(summary: RunSummary) -> int:
 	last_rejection = ""
-	if not is_available() or not shown or summary.debug:
-		return 0
+	if not is_available() or not shown or summary.debug or RemoteConfig.scores_off():
+		return 0  # (scores_off: the remote kill switch)
 	var boards := config.boards.filter(func(def: LeaderboardDef) -> bool: return def.accepts(summary))
 	if boards.is_empty():
 		return 0
@@ -239,7 +239,7 @@ func waiting_score(board: LeaderboardDef, key: String) -> float:
 ## period is over (yesterday's, the board emptied at midnight UTC) or refused by the server is
 ## dropped. One flush at a time.
 func flush() -> void:
-	if _flushing or not is_available() or not shown:
+	if _flushing or not is_available() or not shown or RemoteConfig.scores_off():
 		return
 	if queue.is_empty() and (not name_chosen or synced_name == display_name()):
 		return

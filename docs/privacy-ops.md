@@ -50,6 +50,19 @@ legal advice.** Where the report was unsure, the safer choice was taken and is m
   version **2** (policy 1.1): players who accepted version 1 are asked again. The player's totals
   go with the player (deletion, the 730-day purge); the world's sums are anonymous and stay.
 
+- **The remote settings** ([online.md](online.md#remote-settings-talo-game-config)): reading Talo's
+  game config is a request like any other, so Talo sees the device's IP address. Decision (24
+  October 2026): the game reads it **only once the player turned an online feature on** (published
+  scores or accepted statistics), like the world counters' read, so a player who chose neither
+  still makes no call at all; the read carries **no player id** (no alias header: Talo's
+  `GET /v1/game-config` needs none), stores nothing on Talo's side, and only allow-listed values
+  are kept on the device (`user://remote_config.json`, nothing personal). Basis: legitimate
+  interest (GDPR 6(1)(f): keeping the game fair and working without an update); no device
+  storage is read for it, so LIL art. 82 doesn't apply. Not consent-based, so **no new consent
+  version**; the policy says it (version **1.2**, in-game section "Game settings from the server",
+  docs/privacy.html section 2). If the read ever had to carry the player's alias (per-player
+  config), that would need its own basis: ask again.
+
 ## The placeholders to fill (before publishing a build with a key)
 
 They live in **one data file**, `data/online/privacy.tres`, and the same ones in

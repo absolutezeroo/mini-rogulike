@@ -83,6 +83,11 @@ func run() -> void:
 	add_child(world_stats)
 	await world_stats.run_unit()
 	world_stats.free()
+	# The remote settings (RemoteConfigTests).
+	var remote := RemoteConfigTests.new()
+	add_child(remote)
+	await remote.run_unit()
+	remote.free()
 	var gear := GearLookTests.new()
 	add_child(gear)
 	gear.run()

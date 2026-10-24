@@ -160,11 +160,11 @@ func run_game(game: Game) -> void:
 	game.player.invincible = false
 
 
-## Five tabs that fit the screen, reached with the tab keys; the toggles say their state.
+## Six tabs that fit the screen, reached with the tab keys; the toggles say their state.
 func _test_panel(game: Game, debug: DebugPanel) -> void:
 	game.open_debug()
 	await _frames(2)
-	check(debug.visible and debug._tabs.size() == 5 and debug.tab_index() == 0, "the panel opens on its first tab, of five")
+	check(debug.visible and debug._tabs.size() == 6 and debug.tab_index() == 0, "the panel opens on its first tab, of six")
 	var too_big: Array[String] = []
 	for i in debug._pages.size():
 		debug.show_tab(i)
@@ -179,7 +179,7 @@ func _test_panel(game: Game, debug: DebugPanel) -> void:
 	MenuNav.switch_tab(debug, 1)
 	check(debug.tab_index() == 1, "the tab keys switch its tabs")
 	MenuNav.switch_tab(debug, -2)
-	check(debug.tab_index() == 4, "and wrap round")
+	check(debug.tab_index() == 5, "and wrap round")
 	var invisible := debug.find_child("Invisible", true, false) as Button
 	invisible.pressed.emit()
 	check(DebugCheats.invisible and invisible.text == "Invisible: ON" and invisible.button_pressed, "a toggle says it is on")

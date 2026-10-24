@@ -158,16 +158,17 @@ func pick_perks(owned: PerkSet, count: int, rarity: PerkDef.Rarity, rng: RandomN
 	return result
 
 
-## A ContentDef of `pool` allowed at `depth`, by spawn weight (null if none).
-static func pick_from(pool: Array, depth: int, rng: RandomNumberGenerator) -> ContentDef:
-	return _pick(pool, depth, rng)
+## A ContentDef of `pool` allowed at `depth`, by spawn weight (null if none). `boost`: id ->
+## a multiplier of that one's weight (a remote event's floor event: RemoteTuning.event_boost).
+static func pick_from(pool: Array, depth: int, rng: RandomNumberGenerator, boost: Dictionary = {}) -> ContentDef:
+	return _pick(pool, depth, rng, boost)
 
 
-static func _pick(pool: Array, depth: int, rng: RandomNumberGenerator) -> ContentDef:
+static func _pick(pool: Array, depth: int, rng: RandomNumberGenerator, boost: Dictionary = {}) -> ContentDef:
 	var candidates: Array = []
 	var weights := PackedInt32Array()
 	for def: ContentDef in pool:
 		if def != null and def.min_depth <= depth and def.spawn_weight > 0:
 			candidates.append(def)
-			weights.append(def.spawn_weight)
+			weights.append(roundi(def.spawn_weight * float(boost.get(String(def.id), 1.0))) if not boost.is_empty() else def.spawn_weight)
 	return RandomUtils.pick_weighted(candidates, weights, rng)

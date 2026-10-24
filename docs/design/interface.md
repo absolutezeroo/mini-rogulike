@@ -197,6 +197,11 @@ The rules and their reasons: [../privacy-ops.md](../privacy-ops.md). On screen:
 - **The privacy policy** (`PrivacyPolicyPanel`, an `InfoPanel`): the short policy's sections from
   `data/online/privacy.tres`, translated, the contact filled in, and **Read the full policy
   online** once its address is set. A page that scrolls with touch, the wheel, keys or a gamepad.
+- **The remote settings on the title** (`RemoteConfig`, docs/online.md "Remote settings"): a
+  running event's plaque under Credits (its name in gold, then in small type the souls bonus,
+  the floor event made more likely, the time left: "Encore 2 jours"), and the message of the day
+  in gold in the tagline's place (at most two lines: the left column has no room for more on a
+  phone once Resume shows). Both hidden when there are none, and before any online choice.
 - **Credits** (`CreditsPanel`, from a **Credits** button under Leaderboards on the title screen,
   and from the Options): `data/credits/credits.tres` by section (made by, art, music and sound,
   engine and services), each with its makers, what it is in the game, its license and source,

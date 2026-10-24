@@ -12,7 +12,9 @@ extends Control
 ## (CreditsPanel). The first time it shows (and when a refusal's six months are over), it asks the
 ## gameplay statistics' questions (ConsentDialog, Privacy.should_ask()), over the title, never
 ## over a run. At the bottom, a discreet line turns through the world counters (WorldStats, "The
-## Well's Toll": the demons slain in the Well by every player...), only once they were read.
+## Well's Toll": the demons slain in the Well by every player...), only once they were read. Under
+## Credits, what the remote settings say (RemoteConfig): a running event's plaque and
+## the message of the day; the title is a safe point where read values start to apply.
 
 const GAME_SCENE := "res://src/game/game.tscn"
 const STORY_SCENE := "res://src/ui/story/story_screen.tscn"
@@ -50,6 +52,12 @@ var talk: DialogueScreen
 ## The world counters' line at the bottom (hidden while none is known), and which one it shows.
 var world_line: Label
 var _world_index := 0
+## The remote settings' notes under Credits (RemoteConfig): a running event's plaque
+## (its name, what it gives, the time left) and the message of the day; hidden when there are none.
+var event_plaque: PanelContainer
+var event_title: Label
+var event_details: Label
+var message_line: Label
 
 
 ## The shrine's music (SoundBank.title_music: Kagari asleep above the Well), and its bell tolled
@@ -130,6 +138,7 @@ func _ready() -> void:
 	_build_credits()
 	_build_consent()
 	_build_world_line()
+	_build_remote_notes()
 	%DailyButton.pressed.connect(func() -> void:
 		Sfx.play_ui(Sfx.bank.ui_open)
 		daily_dialog.open(content, DailyRun.today()))
@@ -382,6 +391,77 @@ func show_world_line(fade: bool = false) -> void:
 	if fade and lines.size() > 1:
 		world_line.modulate.a = 0.0
 		create_tween().tween_property(world_line, "modulate:a", 1.0, 0.8)
+
+
+## The remote settings' notes: the event's plaque in the records' column under Credits (the
+## left column has no room for it on a phone once Resume shows), the message of the day in the
+## tagline's place. The title screen is a safe point: what was read applies now
+## (RemoteConfig.at_title()), and is read again if old.
+func _build_remote_notes() -> void:
+	event_plaque = PanelContainer.new()
+	event_plaque.name = "EventPlaque"
+	var style := MenuWindow.strip_style().duplicate() as StyleBoxTexture
+	style.content_margin_left = 14
+	style.content_margin_right = 14
+	style.content_margin_top = 8
+	style.content_margin_bottom = 13
+	event_plaque.add_theme_stylebox_override("panel", style)
+	event_plaque.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	(%RecordsPlaque as Control).get_parent().add_child(event_plaque)
+	var lines := VBoxContainer.new()
+	lines.add_theme_constant_override("separation", 2)
+	event_plaque.add_child(lines)
+	event_title = UiSkin.label("", Fonts.BODY, UiSkin.GOLD, true)
+	event_title.name = "EventTitle"
+	lines.add_child(event_title)
+	event_details = UiSkin.label("", Fonts.SMALL, UiSkin.TEXT, true)
+	event_details.name = "EventDetails"
+	lines.add_child(event_details)
+	message_line = UiSkin.label("", Fonts.BODY, UiSkin.GOLD, true)
+	message_line.name = "MessageLine"
+	message_line.custom_minimum_size.x = 680  # (the subtitle's width)
+	message_line.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	message_line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# In the tagline's place while there is one (at most two lines, like it): the left column has
+	# no room for one more line on a phone once Resume shows.
+	var subtitle: Control = %Subtitle
+	subtitle.get_parent().add_child(message_line)
+	subtitle.get_parent().move_child(message_line, subtitle.get_index() + 1)
+	RemoteConfig.applied.connect(show_remote_notes)
+	show_remote_notes()
+	RemoteConfig.at_title()
+
+
+## Fills the notes from the remote settings in use (RemoteConfig.active).
+func show_remote_notes() -> void:
+	if event_plaque == null or not is_inside_tree():
+		return
+	var event := RemoteConfig.event_info()
+	event_plaque.visible = not event.is_empty()
+	if not event.is_empty():
+		event_title.text = str(event.name)
+		var details := PackedStringArray()
+		if float(event.souls) > 1.0:
+			details.append(tr("+%d%% souls each run") % roundi((float(event.souls) - 1.0) * 100.0))
+		var boosted := DailyRun.twist(content, event.floor_event as StringName)
+		if boosted and float(event.weight) > 1.0:
+			details.append(tr("More floors with: %s") % tr(boosted.display_name))
+		details.append(_time_left(int(event.ends) - RemoteConfig.now()))
+		event_details.text = "\n".join(details)
+	var message := RemoteConfig.message()
+	message_line.visible = not message.is_empty()
+	message_line.text = message
+	(%Subtitle as Control).visible = message.is_empty()
+
+
+## "3 days left", "5 hours left", "Ends within the hour".
+func _time_left(seconds: int) -> String:
+	var hours := floori(seconds / 3600.0)
+	if hours >= 48:
+		return tr("%d days left") % floori(hours / 24.0)
+	if hours >= 2:
+		return tr("%d hours left") % hours
+	return tr("Ends within the hour")
 
 
 ## A small plaque on the Shrine button's corner when an upgrade can be bought.
